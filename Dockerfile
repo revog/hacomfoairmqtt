@@ -3,7 +3,7 @@ ARG PYTHON_BASE_IMAGE_VERSION=3.9.17
 FROM python:${PYTHON_BASE_IMAGE_VERSION}-alpine
 
 LABEL maintainer="revog"
-LABEL version="v0.0.6-debug2"
+LABEL version="v0.0.7"
 LABEL org.opencontainers.image.description="Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT"
 LABEL org.opencontainers.image.source=https://github.com/revog/hacomfoairmqtt=
 LABEL org.opencontainers.image.licenses=MIT
@@ -27,21 +27,19 @@ ENV HA_ENABLE_AUTO_DISCOVERY_CLIMATE=true
 ENV HA_AUTO_DISCOVERY_DEVICE_ID=true
 ENV HA_AUTO_DISOCVERY_DEVICE_NAME='CA350'
 ENV HA_AUTO_DISOCVERY_DEVICE_MANUFACTURER='Zehnder'
-ENV HA_AUTO_DISOCVERY_DEVICE_MODEL='ComfoAir 350'
-
-# Set working directory
-WORKDIR /app
+ENV HA_AUTO_DISCOVERY_DEVICE_MODEL='ComfoAir 350'
 
 # Install additional pip packages
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install files for Comfair C350 integration
-COPY . .
+COPY . /
+
+# Set working directory
+WORKDIR /app
 
 # Create config file by injecting provided ENV values
+ENTRYPOINT ["/bin/sh /entrypoint.sh"]
 
-#ENTRYPOINT ["app/entrypoint.sh"]
-
-CMD ["/bin/sh"]
-#CMD ["python3", "app/ca350.py"]
+CMD ["python3", "ca350.py"]

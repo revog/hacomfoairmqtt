@@ -29,8 +29,8 @@ HAEnableAutoDiscoveryClimate=$VALUE_ENV_HA_ENABLE_AUTO_DISCOVERY_CLIMATE$
 # Home Assistant Device Discovery - Unique device ID (change this to be unique if running multiple instances)
 HAAutoDiscoveryDeviceId=$VALUE_ENV_HA_AUTO_DISCOVERY_DEVICE_ID$
 # Device name shown in the frontend
-HAAutoDiscoveryDeviceName=$VALUE_ENV_HA_AUTO_DISOCVERY_DEVICE_NAME$
+HAAutoDiscoveryDeviceName=$VALUE_ENV_HA_AUTO_DISCOVERY_DEVICE_NAME$
 # Device manufacturer shown in device info
-HAAutoDiscoveryDeviceManufacturer=$VALUE_ENV_HA_AUTO_DISOCVERY_DEVICE_MANUFACTURER$
+HAAutoDiscoveryDeviceManufacturer=$VALUE_ENV_HA_AUTO_DISCOVERY_DEVICE_MANUFACTURER$
 # Device model shown in device info
-HAAutoDiscoveryDeviceModel=$VALUE_ENV_HA_AUTO_DISOCVERY_DEVICE_MODEL$
+HAAutoDiscoveryDeviceModel=$VALUE_ENV_HA_AUTO_DISCOVERY_DEVICE_MODEL$
