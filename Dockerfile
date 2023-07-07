@@ -40,6 +40,6 @@ COPY . /
 WORKDIR /app
 
 # Create config file by injecting provided ENV values
-ENTRYPOINT ["/bin/sh /entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 
 CMD ["python3", "ca350.py"]
