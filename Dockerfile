@@ -4,7 +4,7 @@ FROM python:${PYTHON_BASE_IMAGE_VERSION}-alpine
 
 LABEL maintainer="revog"
 LABEL version="0.1"
-LABEL org.opencontainers.image.description="Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT""
+LABEL org.opencontainers.image.description="Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT"
 LABEL org.opencontainers.image.source=https://github.com/revog/hacomfoairmqtt=
 LABEL org.opencontainers.image.licenses=MIT
 
