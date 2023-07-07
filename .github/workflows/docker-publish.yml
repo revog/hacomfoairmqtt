@@ -59,9 +59,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern=v{{version}}
-            type=semver,pattern=v{{major}}.{{minor}}
-            type=semver,pattern=v{{major}}.{{minor}}.{{patch}}
+            type=semver,pattern=v{{version}},prefix='v'
+            type=semver,pattern=v{{major}}.{{minor}},prefix='v'
+            type=semver,pattern=v{{major}}.{{minor}}.{{patch}},prefix='v'
             type=raw,value={{sha}},enable=${{ github.ref_type != 'tag' }}
             
       # Build and push Docker image with Buildx (don't push on PR) (https://github.com/docker/build-push-action)
