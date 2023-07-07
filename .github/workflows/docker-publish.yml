@@ -12,6 +12,9 @@ on:
     branches:
       - '*'
     tags:
+      - 'v[0-9]+''
+      - 'v[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
@@ -58,6 +61,7 @@ jobs:
           tags: |
             type=semver,pattern=v{{version}}
             type=semver,pattern=v{{major}}.{{minor}}
+            type=semver,pattern=v{{major}}.{{minor}}.{{patch}}
             type=raw,value={{sha}},enable=${{ github.ref_type != 'tag' }}
             
       # Build and push Docker image with Buildx (don't push on PR) (https://github.com/docker/build-push-action)
