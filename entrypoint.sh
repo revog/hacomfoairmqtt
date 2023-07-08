@@ -1,5 +1,6 @@
 #!/bin/sh
 
+cd /app
 cp config.ini.tpl config.ini
 
 sed -i 's!\$VALUE_ENV_SERIAL_PORT\$!'$SERIAL_PORT'!g' config.ini
