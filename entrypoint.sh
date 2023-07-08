@@ -3,7 +3,6 @@
 cp config.ini.tpl config.ini
 
 sed -i 's!\$VALUE_ENV_SERIAL_PORT\$!'$SERIAL_PORT'!g' config.ini
-sed -i 's!\$VALUE_ENV_SERIAL_PORT\$!'$SERIAL_PORT'!g' config.ini
 sed -i 's!\$VALUE_ENV_RS485_PROTOCOL\$!'$RS485_PROTOCOL'!g' config.ini
 sed -i 's!\$VALUE_ENV_REFRESH_INTERVAL\$!'$REFRESH_INTERVAL'!g' config.ini
 sed -i 's!\$VALUE_ENV_ENABLE_PC_MODE\$!'$ENABLE_PC_MODE'!g' config.ini
