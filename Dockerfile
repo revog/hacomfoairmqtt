@@ -38,7 +38,5 @@ COPY . /
 # Set working directory
 WORKDIR /app
 
-# Create config file by injecting provided ENV values
+# Create config file by injecting provided ENV values and start python script
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
-
-CMD ["python3", "ca350.py"]
