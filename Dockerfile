@@ -3,7 +3,7 @@ ARG PYTHON_BASE_IMAGE_VERSION=3.9.17
 FROM python:${PYTHON_BASE_IMAGE_VERSION}-alpine
 
 LABEL maintainer="revog"
-LABEL version="v0.0.8"
+LABEL version="v0.0.9"
 LABEL org.opencontainers.image.description="Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT"
 LABEL org.opencontainers.image.source=https://github.com/revog/hacomfoairmqtt=
 LABEL org.opencontainers.image.licenses=MIT
@@ -38,5 +38,8 @@ COPY . /
 # Set working directory
 WORKDIR /app
 
-# Create config file by injecting provided ENV values and start python script
+# Create config file by injecting provided ENV values
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+
+# Start python script
+CMD [ "python3", "ca350.py" ]
