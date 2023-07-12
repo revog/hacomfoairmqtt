@@ -8,7 +8,6 @@ LABEL org.opencontainers.image.description='Container based Home Assistant integ
 LABEL org.opencontainers.image.source=https://github.com/revog/hacomfoairmqtt=
 LABEL org.opencontainers.image.licenses=MIT
 
-
 # Define default config parameters - Refer to config.ini.sample for detailed descriptions
 ENV SERIAL_PORT=/dev/cuau3
 ENV RS485_PROTOCOL=false
@@ -19,8 +18,8 @@ ENV DEBUG=false
 ENV MQTT_SERVER=10.144.1.103
 ENV MQTT_PORT=1883
 ENV MQTT_KEEP_ALIVE=45
-ENV MQTT_USER=''
-ENV MQTT_PASSWORD=''
+ENV MQTT_USER=""
+ENV MQTT_PASSWORD=""
 
 ENV HA_ENABLE_AUTO_DISCOVERY_SENSORS=true
 ENV HA_ENABLE_AUTO_DISCOVERY_CLIMATE=true
@@ -33,13 +32,11 @@ ENV HA_AUTO_DISCOVERY_DEVICE_MODEL=ComfoAir 350
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install files for Comfair C350 integration
+# Install files for Comfair CA350 integration
 COPY . /
 
 # Set working directory
 WORKDIR /app
 
-# Create config file by injecting provided ENV values
+# Create config file by injecting provided ENV values and start python script
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
-
-CMD ["python3", "ca350.py"]
