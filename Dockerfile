@@ -4,7 +4,7 @@ FROM python:${PYTHON_BASE_IMAGE_VERSION}-alpine
 
 LABEL maintainer="revog"
 LABEL version="v0.0.8"
-LABEL org.opencontainers.image.description='Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT'
+LABEL org.opencontainers.image.description="Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT"
 LABEL org.opencontainers.image.source=https://github.com/revog/hacomfoairmqtt=
 LABEL org.opencontainers.image.licenses=MIT
 
@@ -26,7 +26,7 @@ ENV HA_ENABLE_AUTO_DISCOVERY_CLIMATE=true
 ENV HA_AUTO_DISCOVERY_DEVICE_ID=ca350
 ENV HA_AUTO_DISOCVERY_DEVICE_NAME=CA350
 ENV HA_AUTO_DISOCVERY_DEVICE_MANUFACTURER=Zehnder
-ENV HA_AUTO_DISCOVERY_DEVICE_MODEL=ComfoAir 350
+ENV HA_AUTO_DISCOVERY_DEVICE_MODEL="ComfoAir 350"
 
 # Install additional pip packages
 COPY requirements.txt requirements.txt
