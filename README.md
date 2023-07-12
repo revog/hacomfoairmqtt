@@ -1,13 +1,15 @@
 # HAComfoairMqtt
 Container based Home Assistant integration for ComfoAir devices via serial communication and MQTT
 
-*It is not compatible with the newer Q or Aeris Next models as they use a different communication standard.
+`!` It is not compatible with the newer Q or Aeris Next models as they use a different communication standard. `!`
 
 This work is based on the following projects and scripts:
 - Domoticz integration https://github.com/AlbertHakvoort/StorkAir-Zehnder-WHR-930-Domoticz-MQTT
 - Adaption for HomeAssistant and MQTT https://github.com/adorobis/hacomfoairmqtt/
 
 ## Project content
+- `Dockerfile` - Docker blueprint of provided image
+- `entrypoint.sh` - Docker entrypoint script which generates the config.ini based on provided parameters
 - `app/ca350.py` - python script to communicate with the Comfoair unit via serial port, publish data on MQTT broker and react to control messages
 - `app/config.ini.sample` - sample configuration file
 - `app/config.ini.tpl` - skeleton configuration file used for in place configuration when starting container
@@ -18,8 +20,11 @@ Command Line:
 ```bash
 docker run --net=host \
   -e SERIAL_PORT='/dev/ttyUSB0' \
-  -e MQTT_SERVER='10.144.1.103' \
+  -e MQTT_SERVER='127.0.0.1' \
   -e MQTT_PORT=1883 \
+  -e MQTT_USER=comfoair
+  -e MQTT_PASSWORD=password123
+  --device=/dev/ttyUSB0 \
   --name=hacomfoairmqtt ghcr.io/revog/hacomfoairmqtt:latest
 ```
 
@@ -29,7 +34,7 @@ Using [Docker Compose](https://docs.docker.com/compose/) (recommended):
 version: '3.8'
 services:
   hacomfoairmqtt:
-    image: ghcr.io/revog/hacomfoairmqtt:latest
+    image: ghcr.io/revog/hacomfoairmqtt:v0.1.0
     restart: always
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
@@ -42,17 +47,17 @@ services:
       - REFRESH_INTERVAL=10
       - ENABLE_PC_MODE=false
       - DEBUG=false
-      - MQTT_SERVER='10.144.1.103'
+      - MQTT_SERVER='127.0.0.1'
       - MQTT_PORT=1883
       - MQTT_KEEP_ALIVE=45
       - MQTT_USER=''
       - MQTT_PASSWORD=''
       - HA_ENABLE_AUTO_DISCOVERY_SENSORS=true
       - HA_ENABLE_AUTO_DISCOVERY_CLIMATE=true
-      - HA_AUTO_DISCOVERY_DEVICE_ID=true
-      - HA_AUTO_DISOCVERY_DEVICE_NAME='CA350'
-      - HA_AUTO_DISOCVERY_DEVICE_MANUFACTURER='Zehnder'
-      - HA_AUTO_DISOCVERY_DEVICE_MODEL='ComfoAir 350'
+      - HA_AUTO_DISCOVERY_DEVICE_ID=ca350
+      - HA_AUTO_DISCOVERY_DEVICE_NAME=CA350
+      - HA_AUTO_DISCOVERY_DEVICE_MANUFACTURER=Zehnder
+      - HA_AUTO_DISCOVERY_DEVICE_MODEL=ComfoAir 350
 ```
 # Configuration
 ## Home Assistant Comfoair MQTT Configuration
