@@ -34,7 +34,7 @@ Using [Docker Compose](https://docs.docker.com/compose/) (recommended):
 version: '3.8'
 services:
   hacomfoairmqtt:
-    image: ghcr.io/revog/hacomfoairmqtt:v0.1.0
+    image: ghcr.io/revog/hacomfoairmqtt:v0.1.1
     restart: always
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
@@ -43,17 +43,17 @@ services:
       - PGID=0
       - TZ=Europe/Zurich
       - SERIAL_PORT='/dev/cuau3'
-      - RS485_PROTOCOL=false
+      - RS485_PROTOCOL=False
       - REFRESH_INTERVAL=10
-      - ENABLE_PC_MODE=false
-      - DEBUG=false
+      - ENABLE_PC_MODE=False
+      - DEBUG=False
       - MQTT_SERVER='127.0.0.1'
       - MQTT_PORT=1883
       - MQTT_KEEP_ALIVE=45
       - MQTT_USER=''
       - MQTT_PASSWORD=''
-      - HA_ENABLE_AUTO_DISCOVERY_SENSORS=true
-      - HA_ENABLE_AUTO_DISCOVERY_CLIMATE=true
+      - HA_ENABLE_AUTO_DISCOVERY_SENSORS=True
+      - HA_ENABLE_AUTO_DISCOVERY_CLIMATE=True
       - HA_AUTO_DISCOVERY_DEVICE_ID=ca350
       - HA_AUTO_DISCOVERY_DEVICE_NAME=CA350
       - HA_AUTO_DISCOVERY_DEVICE_MANUFACTURER=Zehnder
