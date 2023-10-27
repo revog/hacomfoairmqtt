@@ -9,6 +9,17 @@ refresh_interval=VALUE_ENV_REFRESH_INTERVAL
 enablePcMode=VALUE_ENV_ENABLE_PC_MODE
 debug=VALUE_ENV_DEBUG
 
+[DEVICE]
+FanOutAbsent=15
+FanOutLow=25
+FanOutMid=35
+FanOutHigh=55
+FanInAbsent=15
+FanInLow=25
+FanInMid=35
+FanInHigh=55
+SetUpFanLevelsAtStart=True
+
 [MQTT]
 # MQTT broker - IP
 MQTTServer=VALUE_ENV_MQTT_SERVER

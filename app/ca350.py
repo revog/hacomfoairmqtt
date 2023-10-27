@@ -38,6 +38,19 @@ refresh_interval = int(config['DEFAULT']['refresh_interval'])  # Interval in sec
 enablePcMode = config['DEFAULT']['enablePcMode'] == 'True'     # automatically enable PC Mode (disable comfosense)
 debug = config['DEFAULT']['debug'] == 'True'
 
+#Fan % configuration for each ventilation level
+FanOutAbsent = int(config['DEVICE']['FanOutAbsent'])
+FanOutLow = int(config['DEVICE']['FanOutLow'])
+FanOutMid = int(config['DEVICE']['FanOutMid'])
+FanOutHigh = int(config['DEVICE']['FanOutHigh'])
+FanInAbsent = int(config['DEVICE']['FanInAbsent'])
+FanInLow = int(config['DEVICE']['FanInLow'])
+FanInMid = int(config['DEVICE']['FanInMid'])
+FanInHigh = int(config['DEVICE']['FanInHigh'])
+
+#Set fan levels at the start of the program. If false will be only controlled when fans are enabled or disabled.
+SetUpFanLevelsAtStart = config['DEVICE']['SetUpFanLevelsAtStart'] == 'True'
+
 MQTTServer = config['MQTT']['MQTTServer']            # MQTT broker - IP
 MQTTPort = int(config['MQTT']['MQTTPort'])           # MQTT broker - Port
 MQTTKeepalive = int(config['MQTT']['MQTTKeepalive']) # MQTT broker - keepalive
@@ -185,6 +198,15 @@ def on_message(client, userdata, message):
     elif message.topic == "comfoair/filterweeks":
         filter_weeks = int(msg_data)    
         set_filter_weeks(filter_weeks)
+    elif message.topic == "comfoair/fancontrol/set":
+        if msg_data == "Both":
+            set_fan_levels(Intake=True, Exhaust=True)
+        elif msg_data == "In":
+            set_fan_levels(Intake=True, Exhaust=False)
+        elif msg_data == "Out":
+            set_fan_levels(Intake=False, Exhaust=True)
+        elif msg_data == "off":
+            set_fan_levels(Intake=False, Exhaust=False)
     elif message.topic == "comfoair/ewtlowtemp":
         ewtlowtemp = int(msg_data)
         set_ewt(ewtlowtemp=ewtlowtemp)
@@ -313,22 +335,6 @@ def set_ventilation_level(nr):
         time.sleep(2)
         set_ventilation_level(nr)
 
-def set_fan_levels():
-    data = send_command(b'\x00\xCF', b'\x00', expect_reply=False)
-
-    if data:
-        info_msg('Changed the fan levels')
-        get_ventilation_levels()
-        get_ventilation_status()
-        get_fan_status()
-    else:
-        warning_msg('Changing the fan levels went wrong, received invalid data after the set command')
-        time.sleep(2)
-        set_fan_levels()
-        get_ventilation_levels()
-        get_ventilation_status()
-        get_fan_status()
-
 def set_pc_mode(nr):
     if 0 <= nr <= 4 and nr != 2:
         data = send_command(b'\x00\x9B', bytes([nr]))
@@ -359,7 +365,7 @@ def set_comfort_temperature(nr):
 
 def get_temp():
     data = send_command(b'\x00\xD1', None)
-
+    EWTTemp = None
     if data is None:
         warning_msg('get_temp function could not get serial data')
     else:
@@ -371,7 +377,8 @@ def get_temp():
             ExhaustAirTemp = data[4] / 2.0 - 20
 #            SensorsInstalled = data[5]
 #            info_msg('Sensors installed {0} :'.SensorsInstalled)
-            EWTTemp = data[6] / 2.0 - 20
+            if len(data) > 6:
+                EWTTemp = data[6] / 2.0 - 20
 				
             if 10 < ComfortTemp < 30:
                 publish_message(msg=str(ComfortTemp), mqtt_path='comfoair/comforttemp')
@@ -379,7 +386,8 @@ def get_temp():
                 publish_message(msg=str(SupplyAirTemp), mqtt_path='comfoair/supplytemp')
                 publish_message(msg=str(ExhaustAirTemp), mqtt_path='comfoair/exhausttemp')
                 publish_message(msg=str(ReturnAirTemp), mqtt_path='comfoair/returntemp')
-                publish_message(msg=str(EWTTemp), mqtt_path='comfoair/ewttemp')
+                if EWTTemp is not None:
+                    publish_message(msg=str(EWTTemp), mqtt_path='comfoair/ewttemp')
                 debug_msg('OutsideAirTemp: {0}, SupplyAirTemp: {1}, ReturnAirTemp: {2}, ExhaustAirTemp: {3}, ComfortTemp: {4}, EWTTemp: {5}'.format(OutsideAirTemp, SupplyAirTemp, ReturnAirTemp, ExhaustAirTemp, ComfortTemp, EWTTemp))
             else:
                 warning_msg('get_temp returned bad temp data. Retrying in 2 sec')
@@ -488,13 +496,60 @@ def get_analog_sensor():
         else:
             warning_msg('get_analog_sensor function: incorrect data received')
 
-def get_ventilation_levels():
+def set_fan_levels(Intake=True, Exhaust=True):
+
+    if Intake:
+        InAbsent = bytes([FanInAbsent])
+        InLow = bytes([FanInLow])
+        InMid = bytes([FanInMid])
+        InHigh = bytes([FanInHigh])
+    else:
+        InAbsent = bytes([0])
+        InLow = bytes([0])
+        InMid = bytes([0])
+        InHigh = bytes([0])
+    if Exhaust:
+        OutAbsent = bytes([FanOutAbsent])
+        OutLow = bytes([FanOutLow])
+        OutMid = bytes([FanOutMid])
+        OutHigh = bytes([FanOutHigh])
+    else:
+        OutAbsent = bytes([0])
+        OutLow = bytes([0])
+        OutMid = bytes([0])
+        OutHigh = bytes([0])
+    
+    debug_msg('Fan levels config: FanOutAbsent: {0} %, FanOutLow: {1} %, FanOutMid: {2} %, FanInAbsent: {3} %'.format(FanOutAbsent, FanOutLow, FanOutMid, FanInAbsent))
+    
+    datasend = OutAbsent + OutLow + OutMid + InAbsent + InLow + InMid + OutHigh + InHigh
+    
+    debug_msg('Fan levels data do be sent {0} '.format(datasend))
+    
+    data = send_command(b'\x00\xCF', datasend, expect_reply=False)
+
+    if data:
+        info_msg('Changed the fan levels')
+        time.sleep(10)
+        get_ventilation_status()
+        get_fan_status()
+    else:
+        warning_msg('Changing the fan levels went wrong, received invalid data after the set command')
+        time.sleep(2)
+        set_fan_levels(Intake, Exhaust)
+        get_ventilation_status()
+        get_fan_status()
+
+def get_ventilation_status():
     data = send_command(b'\x00\xCD', None)
 
     if data is None:
-        warning_msg('get_ventilation_levels function could not get serial data')
+        warning_msg('get_ventilation_status function could not get serial data')
     else:
         if len(data) > 12:
+            ReturnAirLevel = data[6]
+            SupplyAirLevel = data[7]
+            FanLevel = data[8]
+            IntakeFanActive = data[9]
             OutAbsent = data[0]
             OutLow = data[1]
             OutMid = data[2]
@@ -503,21 +558,8 @@ def get_ventilation_levels():
             InMid = data[5]
             OutHigh = data[10]
             InHigh = data[11]
+            
             debug_msg('OutAbsent: {}, OutLow: {}, OutMid: {}, OutHigh: {}, InAbsent: {}, InLow: {}, InMid: {}, InHigh: {}'.format(OutAbsent, OutLow, OutMid, OutHigh, InAbsent, InLow, InMid, InHigh))
-        else:
-            warning_msg('get_ventilation_levels function data array too short')
-
-def get_ventilation_status():
-    data = send_command(b'\x00\xCD', None)
-
-    if data is None:
-        warning_msg('get_ventilation_status function could not get serial data')
-    else:
-        if len(data) > 9:
-            ReturnAirLevel = data[6]
-            SupplyAirLevel = data[7]
-            FanLevel = data[8]
-            IntakeFanActive = data[9]
 
             if IntakeFanActive == 1:
                 StrIntakeFanActive = 'Yes'
@@ -527,6 +569,15 @@ def get_ventilation_status():
                 StrIntakeFanActive = 'Unknown'
 
             debug_msg('ReturnAirLevel: {}, SupplyAirLevel: {}, FanLevel: {}, IntakeFanActive: {}'.format(ReturnAirLevel, SupplyAirLevel, FanLevel, StrIntakeFanActive))
+
+            if OutLow == 0 and InLow == 0:
+                publish_message(msg='off', mqtt_path='comfoair/fancontrol')
+            elif OutLow > 0 and InLow == 0:
+                publish_message(msg='Out', mqtt_path='comfoair/fancontrol')
+            elif OutLow == 0 and InLow > 0:
+                publish_message(msg='In', mqtt_path='comfoair/fancontrol')
+            else:
+                publish_message(msg='Both', mqtt_path='comfoair/fancontrol')
 
             if FanLevel == 1:
                 publish_message(msg='off', mqtt_path='comfoair/ha_climate_mode')
@@ -814,6 +865,8 @@ def topic_subscribe():
         info_msg('Successfull subscribed to the comfoair/ewthightemp topic')
         mqttc.subscribe("comfoair/ewtspeedup", 0)
         info_msg('Successfull subscribed to the comfoair/ewtspeedup topic')
+        mqttc.subscribe("comfoair/fancontrol/set", 0)
+        info_msg('Successfull subscribed to the comfoair/fancontrol/set topic')
         
     except:
         warning_msg('There was an error while subscribing to the MQTT topic(s), trying again in 10 seconds')
@@ -1012,6 +1065,16 @@ def on_connect(client, userdata, flags, rc):
             device_class="temperature", min_value=0, max_value=99, state_topic="comfoair/ewtspeedup_state"
         )
 
+        # Fan Control
+        send_autodiscover(
+            name="Fan Control", entity_id="ca350_fancontrol", entity_type="select",
+            state_topic="comfoair/fancontrol", command_topic="comfoair/fancontrol/set", icon="mdi:fan-off",
+            attributes={
+                "options":["off", "In", "Out", "Both"],
+                "entity_category":"config"
+            }
+        )
+
     else:
         delete_message("homeassistant/sensor/ca350_outsidetemp/config")
         delete_message("homeassistant/sensor/ca350_supplytemp/config")
@@ -1103,6 +1166,8 @@ else:
             set_pc_mode(3)
         else:
             set_pc_mode(0)  # If PC mode is disabled, deactivate it (in case it was activated in an earlier run)
+    if SetUpFanLevelsAtStart:
+        set_fan_levels(Intake=True, Exhaust=True)
     mqttc.loop_start()
     while True:
         try:
@@ -1128,6 +1193,4 @@ else:
             mqttc.loop_stop()
             ser.close()
             break
-
-
 # End of program
